@@ -38,15 +38,15 @@ export type UserSettings = {
 
 // Fallback if NEXT_PUBLIC_APP_CONFIG is not set
 const defaultConfig: AppConfig = {
-  title: "LiveKit Agents Playground",
+  title: " Cosmos (A Personal Voyage) - Ep 01 The Shores of the Cosmic Ocean ",
   description: "A playground for testing LiveKit Agents",
   video_fit: "cover",
   settings: {
     editable: true,
     theme_color: "cyan",
-    chat: true,
+    chat: false,
     inputs: {
-      camera: true,
+      camera: false,
       mic: true,
     },
     outputs: {

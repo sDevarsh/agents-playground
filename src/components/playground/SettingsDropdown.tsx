@@ -2,7 +2,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { CheckIcon, ChevronIcon } from "./icons";
 import { useConfig } from "@/hooks/useConfig";
 
-type SettingType = "inputs" | "outputs" | "chat" | "theme_color"
+type SettingType = "inputs" | "outputs" | "chat" | "theme_color";
 
 type SettingValue = {
   title: string;
@@ -12,36 +12,11 @@ type SettingValue = {
 
 const settingsDropdown: SettingValue[] = [
   {
-    title: "Show chat",
-    type: "chat",
-    key: "N/A",
-  },
-  {
-    title: "---",
-    type: "separator",
-    key: "separator_1",
-  },
-  {
-    title: "Show video",
-    type: "outputs",
-    key: "video",
-  },
-  {
     title: "Show audio",
     type: "outputs",
     key: "audio",
   },
 
-  {
-    title: "---",
-    type: "separator",
-    key: "separator_2",
-  },
-  {
-    title: "Enable camera",
-    type: "inputs",
-    key: "camera",
-  },
   {
     title: "Enable mic",
     type: "inputs",
@@ -50,18 +25,19 @@ const settingsDropdown: SettingValue[] = [
 ];
 
 export const SettingsDropdown = () => {
-  const {config, setUserSettings} = useConfig();
+  const { config, setUserSettings } = useConfig();
 
   const isEnabled = (setting: SettingValue) => {
-    if (setting.type === "separator" || setting.type === "theme_color") return false;
+    if (setting.type === "separator" || setting.type === "theme_color")
+      return false;
     if (setting.type === "chat") {
       return config.settings[setting.type];
     }
 
-    if(setting.type === "inputs") {
+    if (setting.type === "inputs") {
       const key = setting.key as "camera" | "mic";
       return config.settings.inputs[key];
-    } else if(setting.type === "outputs") {
+    } else if (setting.type === "outputs") {
       const key = setting.key as "video" | "audio";
       return config.settings.outputs[key];
     }
@@ -72,13 +48,13 @@ export const SettingsDropdown = () => {
   const toggleSetting = (setting: SettingValue) => {
     if (setting.type === "separator" || setting.type === "theme_color") return;
     const newValue = !isEnabled(setting);
-    const newSettings = {...config.settings}
+    const newSettings = { ...config.settings };
 
-    if(setting.type === "chat") {
+    if (setting.type === "chat") {
       newSettings.chat = newValue;
-    } else if(setting.type === "inputs") {
+    } else if (setting.type === "inputs") {
       newSettings.inputs[setting.key as "camera" | "mic"] = newValue;
-    } else if(setting.type === "outputs") {
+    } else if (setting.type === "outputs") {
       newSettings.outputs[setting.key as "video" | "audio"] = newValue;
     }
     setUserSettings(newSettings);

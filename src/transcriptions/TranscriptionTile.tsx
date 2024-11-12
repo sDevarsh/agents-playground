@@ -82,6 +82,7 @@ export function TranscriptionTile({
     }
     allMessages.sort((a, b) => a.timestamp - b.timestamp);
     setMessages(allMessages);
+    // console.log(messages);
   }, [
     transcripts,
     chatMessages,

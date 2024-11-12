@@ -28,6 +28,7 @@ import { ConnectionState, LocalParticipant, Track } from "livekit-client";
 import { QRCodeSVG } from "qrcode.react";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import tailwindTheme from "../../lib/tailwindTheme.preval";
+import DownloadTranscriptionLog from "../../transcriptions/DownloadTranscriptionLog";
 
 export interface PlaygroundMeta {
   name: string;
@@ -57,13 +58,35 @@ export default function Playground({
   const roomState = useConnectionState();
   const tracks = useTracks();
 
+  const [timeElapsed, setTimeElapsed] = useState(0);
+  const [timerRunning, setTimerRunning] = useState(false);
   useEffect(() => {
+    let timerInterval: NodeJS.Timeout;
+
     if (roomState === ConnectionState.Connected) {
       localParticipant.setCameraEnabled(config.settings.inputs.camera);
       localParticipant.setMicrophoneEnabled(config.settings.inputs.mic);
-    }
-  }, [config, localParticipant, roomState]);
 
+      // Start timer
+      setTimerRunning(true);
+      timerInterval = setInterval(() => {
+        setTimeElapsed((prev) => prev + 1);
+      }, 1000);
+    } else {
+      // Stop timer
+      setTimerRunning(false);
+      clearInterval(timerInterval);
+      setTimeElapsed(0); // Reset time if you want when disconnected
+    }
+
+    // Clean up interval on unmount or roomState change
+    return () => clearInterval(timerInterval);
+  }, [config, localParticipant, roomState]);
+  const timerDisplay = useMemo(() => {
+    const seconds = timeElapsed % 60;
+    const minutes = Math.floor(timeElapsed / 60);
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  }, [timeElapsed]);
   const agentVideoTrack = tracks.find(
     (trackRef) =>
       trackRef.publication.kind === Track.Kind.Video &&
@@ -203,10 +226,16 @@ export default function Playground({
   const chatTileContent = useMemo(() => {
     if (voiceAssistant.audioTrack) {
       return (
-        <TranscriptionTile
-          agentAudioTrack={voiceAssistant.audioTrack}
-          accentColor={config.settings.theme_color}
-        />
+        <>
+          <TranscriptionTile
+            agentAudioTrack={voiceAssistant.audioTrack}
+            accentColor={config.settings.theme_color}
+          />
+          <DownloadTranscriptionLog
+            agentAudioTrack={voiceAssistant.audioTrack}
+            accentColor={config.settings.theme_color}
+          />
+        </>
       );
     }
     return <></>;
@@ -235,6 +264,24 @@ export default function Playground({
               />
             </div>
           )}
+        </ConfigurationPanelItem>
+
+        <ConfigurationPanelItem title="Connection Timer">
+          <div
+            className="font-bold text-2xl text-center text-white"
+            style={{
+              backgroundColor:
+                tailwindTheme.colors[config.settings.theme_color]["500"],
+              padding: "1rem",
+              borderRadius: "0.5rem",
+              boxShadow: `0 0 10px ${
+                tailwindTheme.colors[config.settings.theme_color]["500"]
+              }`,
+              filter: "brightness(1.1)",
+            }}
+          >
+            {timerRunning ? `Connected for: ${timerDisplay}` : "Not connected"}
+          </div>
         </ConfigurationPanelItem>
         <ConfigurationPanelItem title="Status">
           <div className="flex flex-col gap-2">
